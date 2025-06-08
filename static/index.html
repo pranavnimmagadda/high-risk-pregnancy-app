@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDG3 - Maternal Health Risk Prediction</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for Bar Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts for professional typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), no-repeat center center fixed;
+            background-size: cover;
+            color: #1a202c;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1;
+        }
+        /* Header Styles */
+        .header {
+            background: linear-gradient(90deg, #2b6cb0 0%, #1a4971 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .header-logo {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .header-logo img {
+            height: 50px;
+            margin-right: 1rem;
+            justify-content: flex-start;
+        }
+        .header-logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .header-nav a {
+            color: white;
+            margin-left: 1.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .header-nav a:hover {
+            color: #a3bffa;
+        }
+        .header-nav a.active {
+            border-bottom: 2px solid #a3bffa;
+            padding-bottom: 0.25rem;
+        }
+        /* Section Styles */
+        .section {
+            background: white;
+            padding: 2.5rem;
+            margin-top: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .chart-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        .input-section {
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+        .input-section input, .input-section select {
+            transition: all 0.3s ease;
+        }
+        .input-section input:focus, .input-section select:focus {
+            border-color: #2b6cb0;
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.2);
+        }
+        /* Results Section Styling */
+        .results-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 2rem;
+        }
+        .results-section h2 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1a4971;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            text-decoration: underline;
+        }
+        .results-section h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: #2b6cb0;
+            margin: 0.5rem auto 0;
+            border-radius: 2px;
+        }
+        .recommendation-section {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .recommendation-section h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            text-decoration: underline;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .recommendation-section ul {
+            list-style-type: disc;
+            margin-left: 2rem;
+            color: #4a5568;
+            line-height: 1.75;
+        }
+        .recommendation-section ul ul {
+            list-style-type: circle;
+            margin-left: 2rem;
+            margin-top: 0.5rem;
+        }
+        .recommendation-section li {
+            margin-bottom: 0.5rem;
+        }
+        .collapsible {
+            cursor: pointer;
+            padding: 1rem;
+            background: #e2e8f0;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .collapsible-content {
+            display: none;
+            padding: 1rem;
+            background: #edf2f7;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .collapsible.active + .collapsible-content {
+            display: block;
+        }
+        .risk-high { color: #dc2626; font-weight: bold; }
+        .risk-moderate { color: #d97706; font-weight: bold; }
+        .risk-low { color: #16a34a; font-weight: bold; }
+        .emoji {
+            font-size: 1.5rem;
+        }
+        .footer {
+            background: linear-gradient(90deg, #2b6cb0 0%, #1a4971 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #2b6cb0;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #1a4971;
+            transform: translateY(-2px);
+        }
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Profile Display Table */
+        .profile-display table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .profile-display th, .profile-display td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .profile-display th {
+            background-color: #f7fafc;
+            font-weight: 600;
+        }
+        /* Metrics List */
+        .metrics-list {
+            margin-bottom: 2rem;
+            justify-content: center;
+            text-align: center;
+            padding: 0;
+        }
+        .metrics-list li {
+            list-style-position: inside;
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section, .header, .footer {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-logo">
+                <img src="/static/SDG3 Health Logo.jpg" alt="SDG3 Logo">
+                <h1>SDG3 Maternal Health</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="#risk-predictors" class="tab-link active" data-tab="risk-predictors">Risk Predictors</a>
+                <a href="#model-metrics" class="tab-link" data-tab="model-metrics">Model Metrics</a>
+                <a href="#detailed-analysis" class="tab-link" data-tab="detailed-analysis">Detailed Analysis</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Risk Predictors Tab -->
+        <section id="risk-predictors" class="tab-content section active">
+            <h2 class="text-3xl font-semibold mb-6 text-center text-gray-800">Maternal Health Risk Prediction</h2>
+            <div class="flex justify-center mb-6">
+                <button id="manualInputBtn" class="btn-primary text-white px-4 py-2 rounded-l-lg">Manual Input</button>
+                <button id="profileSelectBtn" class="btn-primary text-white px-4 py-2 rounded-r-lg">Select Profile</button>
+            </div>
+            <!-- Profile Selection -->
+            <div id="profileSelect" class="input-section hidden">
+                <label for="patientProfile" class="block text-sm font-medium text-gray-700 mb-2">Select Patient Profile</label>
+                <select id="patientProfile" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <option value="1">Profile 1</option>
+                    <option value="2">Profile 2</option>
+                    <option value="3">Profile 3</option>
+                    <option value="4">Profile 4</option>
+                    <option value="5">Profile 5</option>
+                    <option value="6">Profile 6</option>
+                    <option value="7">Profile 7</option>
+                    <option value="8">Profile 8</option>
+                </select>
+                <div id="profileDisplay" class="profile-display mt-4 hidden">
+                    <h3 class="text-xl font-semibold mb-4 text-center text-gray-800">Selected Profile Details</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profileTableBody"></tbody>
+                    </table>
+                    <button id="submitProfile" class="mt-4 w-full btn-primary text-white p-3 rounded-lg shadow-md hover:shadow-lg transition duration-300">Generate Recommendations</button>
+                </div>
+            </div>
+            <!-- Manual Input Form -->
+            <div id="manualInput" class="input-section">
+                <form id="patientForm" class="max-w-2xl mx-auto">
+                    <h3 class="text-xl font-semibold mb-4 text-center text-gray-800">Patient Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Patient Name</label>
+                            <input type="text" id="name" name="NAME" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div> -->
+                        <div>
+                            <label for="age" class="block text-sm font-medium text-gray-700">Age (years)</label>
+                            <input type="number" id="age" name="AGE" min="0" max="100" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="hemoglobin" class="block text-sm font-medium text-gray-700">Hemoglobin (g/dL)</label>
+                            <input type="number" step="0.1" id="hemoglobin" name="HEMOGLOBIN" min="0" max="20" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="hemoglobin_min" class="block text-sm font-medium text-gray-700">Minimum Hemoglobin (g/dL)</label>
+                            <input type="number" step="0.1" id="hemoglobin_min" name="HEMOGLOBIN_min" min="0" max="20" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="gravida" class="block text-sm font-medium text-gray-700">Gravida (number of pregnancies)</label>
+                            <input type="number" id="gravida" name="GRAVIDA" min="0" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="parity" class="block text-sm font-medium text-gray-700">Parity (number of deliveries)</label>
+                            <input type="number" id="parity" name="PARITY" min="0" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="abortions" class="block text-sm font-medium text-gray-700">Abortions (number)</label>
+                            <input type="number" id="abortions" name="ABORTIONS" min="0" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="height" class="block text-sm font-medium text-gray-700">Height (cm)</label>
+                            <input type="number" step="0.1" id="height" name="HEIGHT" min="0" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="weight_last" class="block text-sm font-medium text-gray-700">Current Weight (kg)</label>
+                            <input type="number" step="0.1" id="weight_last" name="WEIGHT_last" min="0" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="weight_first" class="block text-sm font-medium text-gray-700">Initial Weight (kg)</label>
+                            <input type="number" step="0.1" id="weight_first" name="WEIGHT_first" min="0" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="bp_last" class="block text-sm font-medium text-gray-700">Blood Pressure (mmHg, e.g., 120/80)</label>
+                            <input type="text" id="bp_last" name="BP_last" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 120/80" required pattern="^\d+/\d+$" oninvalid="this.setCustomValidity('Please enter blood pressure in the format systolic/diastolic (e.g., 120/80)')" oninput="this.value = this.value.replace(/\s/g, ''); this.setCustomValidity('')">
+                        </div>
+                        <div>
+                            <label for="no_of_weeks_max" class="block text-sm font-medium text-gray-700">Gestational Age (weeks)</label>
+                            <input type="number" id="no_of_weeks_max" name="NO_OF_WEEKS_max" min="0" max="42" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="total_anc_visits" class="block text-sm font-medium text-gray-700">Total ANC Visits</label>
+                            <input type="number" id="total_anc_visits" name="TOTAL_ANC_VISITS" min="0" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="total_missed_visits" class="block text-sm font-medium text-gray-700">Total Missed ANC Visits</label>
+                            <input type="number" id="total_missed_visits" name="total_missed_visits" min="0" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="phq_score_max" class="block text-sm font-medium text-gray-700">PHQ Score (max)</label>
+                            <input type="number" id="phq_score_max" name="PHQ_SCORE_max" min="0" max="27" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="gad_score_max" class="block text-sm font-medium text-gray-700">GAD Score (max)</label>
+                            <input type="number" id="gad_score_max" name="GAD_SCORE_max" min="0" max="21" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="missanc1flg" class="block text-sm font-medium text-gray-700">Missed ANC Visit 1</label>
+                            <select id="missanc1flg" name="MISSANC1FLG" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="missanc2flg" class="block text-sm font-medium text-gray-700">Missed ANC Visit 2</label>
+                            <select id="missanc2flg" name="MISSANC2FLG" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="missanc3flg" class="block text-sm font-medium text-gray-700">Missed ANC Visit 3</label>
+                            <select id="missanc3flg" name="MISSANC3FLG" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="missanc4flg" class="block text-sm font-medium text-gray-700">Missed ANC Visit 4</label>
+                            <select id="missanc4flg" name="MISSANC4FLG" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <button type="submit" class="w-full btn-primary text-white p-3 rounded-lg shadow-md hover:shadow-lg transition duration-300">Generate Recommendations</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Results Section -->
+            <section id="results" class="results-section hidden">
+                <div id="highRiskColumn">
+                    <h2>High-Risk Pregnancy</h2>
+                    <div id="highRiskRecommendations" class="recommendation-section"></div>
+                    <div id="highRiskRecommendationsSection" class="recommendation-section"></div>
+                </div>
+                <div id="prematureColumn">
+                    <h2>Premature Birth Risk</h2>
+                    <div id="prematureRecommendations" class="recommendation-section"></div>
+                    <div id="prematureRecommendationsSection" class="recommendation-section"></div>
+                </div>
+                <div class="col-span-2 flex justify-center mt-4">
+                    <button id="learnMore" class="btn-primary text-white px-4 py-2 rounded-lg hidden">Learn More</button>
+                </div>
+            </section>
+        </section>
+
+        <!-- Model Metrics Tab -->
+        <section id="model-metrics" class="tab-content section">
+            <h2 class="text-3xl font-semibold mb-6 text-center text-gray-800">Model Performance Metrics</h2>
+            <div class="chart-section">
+                <div class="w-full">
+                    <h3 class="text-xl font-semibold text-center mb-4 text-gray-800">High-Risk Pregnancy Model</h3>
+                    <ul class="metrics-list">
+                        <li>F1 Score: 96.91%</li>
+                        <li>Accuracy: 99.74%</li>
+                        <li>Precision: 98.28%</li>
+                        <li>Recall: 95.57%</li>
+                    </ul>
+                    <div class="chart-container">
+                        <canvas id="highRiskChart"></canvas>
+                    </div>
+                </div>
+                <div class="w-full">
+                    <h3 class="text-xl font-semibold text-center mb-4 text-gray-800">Premature Birth Risk Model</h3>
+                    <ul class="metrics-list">
+                        <li>F1 Score: 92.47%</li>
+                        <li>Accuracy: 93.41%</li>
+                        <li>Precision: 86.21%</li>
+                        <li>Recall: 99.72%</li>
+                    </ul>
+                    <div class="chart-container">
+                        <canvas id="prematureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Analysis Tab -->
+        <section id="detailed-analysis" class="tab-content section">
+            <h2 class="text-3xl font-semibold mb-6 text-center text-gray-800">Detailed Analysis</h2>
+            <div class="results-section">
+                <div id="highRiskDetails">
+                    <h2>High-Risk Pregnancy Details</h2>
+                    <div id="highRiskActions" class="recommendation-section hidden"></div>
+                    <div id="highRiskMedication" class="recommendation-section hidden"></div>
+                    <div id="highRiskMonitoring" class="recommendation-section hidden"></div>
+                </div>
+                <div id="prematureDetails">
+                    <h2>Premature Birth Risk Details</h2>
+                    <div id="prematureInterventions" class="recommendation-section hidden"></div>
+                    <div id="prematurePrevention" class="recommendation-section hidden"></div>
+                    <div id="prematureMonitoring" class="recommendation-section hidden"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 SDG3 - Maternal Health Risk Prediction. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript for Form Submission, Profile Selection, and Charts -->
+    <script>
+        // Predefined Patient Profiles
+        const patientProfiles = {
+            1: {
+                NAME: "Mary Smith",
+                AGE: 38,
+                HEMOGLOBIN: 11.0,
+                HEMOGLOBIN_min: 10.5,
+                GRAVIDA: 3,
+                PARITY: 2,
+                ABORTIONS: 0,
+                HEIGHT: 160,
+                WEIGHT_last: 75,
+                WEIGHT_first: 70,
+                BP_last: "140/90", // Adjusted for High high-risk
+                NO_OF_WEEKS_max: 28,
+                TOTAL_ANC_VISITS: 5,
+                total_missed_visits: 0, // Adjusted for Low premature risk
+                PHQ_SCORE_max: 5,
+                GAD_SCORE_max: 4,
+                MISSANC1FLG: "0",
+                MISSANC2FLG: "0",
+                MISSANC3FLG: "0",
+                MISSANC4FLG: "0"
+            },
+            2: {
+                NAME: "Sarah Davis",
+                AGE: 30,
+                HEMOGLOBIN: 9.5, // Low for High high-risk
+                HEMOGLOBIN_min: 9.0,
+                GRAVIDA: 2,
+                PARITY: 1,
+                ABORTIONS: 0,
+                HEIGHT: 147,
+                WEIGHT_last: 54,
+                WEIGHT_first: 55,
+                BP_last: "125/80",
+                NO_OF_WEEKS_max: 26,
+                TOTAL_ANC_VISITS: 3,
+                total_missed_visits: 3, // Multiple missed visits for High premature risk
+                PHQ_SCORE_max: 6,
+                GAD_SCORE_max: 5,
+                MISSANC1FLG: "1",
+                MISSANC2FLG: "1",
+                MISSANC3FLG: "1",
+                MISSANC4FLG: "0"
+            },
+            3: {
+                NAME: "Rachel Lee",
+                AGE: 34,
+                HEMOGLOBIN: 12.0,
+                HEMOGLOBIN_min: 11.5,
+                GRAVIDA: 2,
+                PARITY: 1,
+                ABORTIONS: 0,
+                HEIGHT: 160,
+                WEIGHT_last: 85,
+                WEIGHT_first: 80,
+                BP_last: "140/90", // Adjusted for High high-risk
+                NO_OF_WEEKS_max: 27,
+                TOTAL_ANC_VISITS: 5,
+                total_missed_visits: 1, // For Moderate premature risk
+                PHQ_SCORE_max: 7,
+                GAD_SCORE_max: 6,
+                MISSANC1FLG: "0",
+                MISSANC2FLG: "1",
+                MISSANC3FLG: "0",
+                MISSANC4FLG: "0"
+            },
+            4: {
+                NAME: "Jane Doe",
+                AGE: 25,
+                HEMOGLOBIN: 12.5,
+                HEMOGLOBIN_min: 11.8,
+                GRAVIDA: 1,
+                PARITY: 0,
+                ABORTIONS: 0,
+                HEIGHT: 165,
+                WEIGHT_last: 60,
+                WEIGHT_first: 58,
+                BP_last: "120/80",
+                NO_OF_WEEKS_max: 20,
+                TOTAL_ANC_VISITS: 4,
+                total_missed_visits: 0,
+                PHQ_SCORE_max: 2,
+                GAD_SCORE_max: 1,
+                MISSANC1FLG: "0",
+                MISSANC2FLG: "0",
+                MISSANC3FLG: "0",
+                MISSANC4FLG: "0"
+            },
+            5: {
+                NAME: "Emily Brown",
+                AGE: 28,
+                HEMOGLOBIN: 13.0,
+                HEMOGLOBIN_min: 12.5,
+                GRAVIDA: 1,
+                PARITY: 0,
+                ABORTIONS: 0,
+                HEIGHT: 160,
+                WEIGHT_last: 62,
+                WEIGHT_first: 60,
+                BP_last: "115/75",
+                NO_OF_WEEKS_max: 24,
+                TOTAL_ANC_VISITS: 5,
+                total_missed_visits: 2, // Adjusted for Moderate premature risk
+                PHQ_SCORE_max: 3,
+                GAD_SCORE_max: 2,
+                MISSANC1FLG: "0",
+                MISSANC2FLG: "1",
+                MISSANC3FLG: "1",
+                MISSANC4FLG: "0"
+            },
+            6: {
+                NAME: "Laura Wilson",
+                AGE: 29,
+                HEMOGLOBIN: 11.5,
+                HEMOGLOBIN_min: 11.0,
+                GRAVIDA: 1,
+                PARITY: 0,
+                ABORTIONS: 0,
+                HEIGHT: 165,
+                WEIGHT_last: 65,
+                WEIGHT_first: 63,
+                BP_last: "120/78",
+                NO_OF_WEEKS_max: 22,
+                TOTAL_ANC_VISITS: 4,
+                total_missed_visits: 1,
+                PHQ_SCORE_max: 7, // Adjusted for Moderate premature risk
+                GAD_SCORE_max: 6,
+                MISSANC1FLG: "0",
+                MISSANC2FLG: "1",
+                MISSANC3FLG: "0",
+                MISSANC4FLG: "0"
+            },
+            7: {
+                NAME: "Anna Johnson",
+                AGE: 32,
+                HEMOGLOBIN: 7.8,
+                HEMOGLOBIN_min: 6,
+                GRAVIDA: 2,
+                PARITY: 1,
+                ABORTIONS: 1,
+                HEIGHT: 158,
+                WEIGHT_last: 55,
+                WEIGHT_first: 51,
+                BP_last: "110/66", // Adjusted for Low high-risk
+                NO_OF_WEEKS_max: 30,
+                TOTAL_ANC_VISITS: 4,
+                total_missed_visits: 2,
+                PHQ_SCORE_max: 8, // High PHQ/GAD for High premature risk
+                GAD_SCORE_max: 6,
+                MISSANC1FLG: "1",
+                MISSANC2FLG: "1",
+                MISSANC3FLG: "0",
+                MISSANC4FLG: "0"
+            },
+            8: {
+                NAME: "Olivia Martinez",
+                AGE: 36,
+                HEMOGLOBIN: 11.8,
+                HEMOGLOBIN_min: 11.2,
+                GRAVIDA: 4,
+                PARITY: 3,
+                ABORTIONS: 0,
+                HEIGHT: 163,
+                WEIGHT_last: 72,
+                WEIGHT_first: 70,
+                BP_last: "120/80", // Adjusted for Low high-risk
+                NO_OF_WEEKS_max: 35,
+                TOTAL_ANC_VISITS: 6,
+                total_missed_visits: 1, // Adjusted for Moderate premature risk
+                PHQ_SCORE_max: 4,
+                GAD_SCORE_max: 3,
+                MISSANC1FLG: "0",
+                MISSANC2FLG: "1",
+                MISSANC3FLG: "0",
+                MISSANC4FLG: "0"
+            }
+        };
+
+        // Initialize Bar Charts
+        const highRiskChart = new Chart(document.getElementById('highRiskChart'), {
+            type: 'bar',
+            data: {
+                labels: ['F1 Score', 'Accuracy', 'Precision', 'Recall'],
+                datasets: [{
+                    label: 'High-Risk Pregnancy Model',
+                    data: [0.9691, 0.9974, 0.9828, 0.9557],
+                    backgroundColor: [
+                        'rgba(43, 108, 176, 0.7)',
+                        'rgba(229, 62, 62, 0.7)',
+                        'rgba(56, 178, 172, 0.7)',
+                        'rgba(237, 137, 54, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(43, 108, 176, 1)',
+                        'rgba(229, 62, 62, 1)',
+                        'rgba(56, 178, 172, 1)',
+                        'rgba(237, 137, 54, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1,
+                        title: {
+                            display: true,
+                            text: 'Metric Value',
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return (value * 100).toFixed(0) + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Metrics',
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${(context.raw * 100).toFixed(1)}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const prematureChart = new Chart(document.getElementById('prematureChart'), {
+            type: 'bar',
+            data: {
+                labels: ['F1 Score', 'Accuracy', 'Precision', 'Recall'],
+                datasets: [{
+                    label: 'Premature Birth Model',
+                    data: [0.9247, 0.9341, 0.8621, 0.9972],
+                    backgroundColor: [
+                        'rgba(43, 108, 176, 0.7)',
+                        'rgba(229, 62, 62, 0.7)',
+                        'rgba(56, 178, 172, 0.7)',
+                        'rgba(237, 137, 54, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(43, 108, 176, 1)',
+                        'rgba(229, 62, 62, 1)',
+                        'rgba(56, 178, 172, 1)',
+                        'rgba(237, 137, 54, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1,
+                        title: {
+                            display: true,
+                            text: 'Metric Value',
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return (value * 100).toFixed(0) + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Metrics',
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${(context.raw * 100).toFixed(1)}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Tab Navigation
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                tabLinks.forEach(l => l.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                link.classList.add('active');
+                document.getElementById(link.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Toggle between Manual Input and Profile Selection
+        const manualInputBtn = document.getElementById('manualInputBtn');
+        const profileSelectBtn = document.getElementById('profileSelectBtn');
+        const manualInput = document.getElementById('manualInput');
+        const profileSelect = document.getElementById('profileSelect');
+
+        manualInputBtn.addEventListener('click', () => {
+            manualInput.classList.remove('hidden');
+            profileSelect.classList.add('hidden');
+            manualInputBtn.classList.add('bg-blue-700');
+            profileSelectBtn.classList.remove('bg-blue-700');
+            document.getElementById('profileDisplay').classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+        });
+
+        profileSelectBtn.addEventListener('click', () => {
+            profileSelect.classList.remove('hidden');
+            manualInput.classList.add('hidden');
+            profileSelectBtn.classList.add('bg-blue-700');
+            manualInputBtn.classList.remove('bg-blue-700');
+        });
+
+        // Profile Selection and Display
+        const patientProfileSelect = document.getElementById('patientProfile');
+        const profileDisplay = document.getElementById('profileDisplay');
+        const profileTableBody = document.getElementById('profileTableBody');
+
+        patientProfileSelect.addEventListener('change', () => {
+            const profileId = patientProfileSelect.value;
+            const profileData = patientProfiles[profileId];
+            profileTableBody.innerHTML = '';
+            const fields = [
+                { key: 'AGE', label: 'Age (years)' },
+                { key: 'HEMOGLOBIN', label: 'Hemoglobin (g/dL)' },
+                { key: 'HEMOGLOBIN_min', label: 'Minimum Hemoglobin (g/dL)' },
+                { key: 'GRAVIDA', label: 'Gravida (number of pregnancies)' },
+                { key: 'PARITY', label: 'Parity (number of deliveries)' },
+                { key: 'ABORTIONS', label: 'Abortions (number)' },
+                { key: 'HEIGHT', label: 'Height (cm)' },
+                { key: 'WEIGHT_last', label: 'Current Weight (kg)' },
+                { key: 'WEIGHT_first', label: 'Initial Weight (kg)' },
+                { key: 'BP_last', label: 'Blood Pressure (mmHg)' },
+                { key: 'NO_OF_WEEKS_max', label: 'Gestational Age (weeks)' },
+                { key: 'TOTAL_ANC_VISITS', label: 'Total ANC Visits' },
+                { key: 'total_missed_visits', label: 'Total Missed ANC Visits' },
+                { key: 'PHQ_SCORE_max', label: 'PHQ Score (max)' },
+                { key: 'GAD_SCORE_max', label: 'GAD Score (max)' },
+                { key: 'MISSANC1FLG', label: 'Missed ANC Visit 1', format: val => val === "0" ? 'No' : 'Yes' },
+                { key: 'MISSANC2FLG', label: 'Missed ANC Visit 2', format: val => val === "0" ? 'No' : 'Yes' },
+                { key: 'MISSANC3FLG', label: 'Missed ANC Visit 3', format: val => val === "0" ? 'No' : 'Yes' },
+                { key: 'MISSANC4FLG', label: 'Missed ANC Visit 4', format: val => val === "0" ? 'No' : 'Yes' }
+            ];
+
+            fields.forEach(field => {
+                const row = document.createElement('tr');
+                const labelCell = document.createElement('td');
+                const valueCell = document.createElement('td');
+                labelCell.textContent = field.label;
+                valueCell.textContent = field.format ? field.format(profileData[field.key]) : profileData[field.key];
+                row.appendChild(labelCell);
+                row.appendChild(valueCell);
+                profileTableBody.appendChild(row);
+            });
+
+            profileDisplay.classList.remove('hidden');
+        });
+
+        // Collapsible Section Logic
+        function setupCollapsible() {
+            const collapsibles = document.querySelectorAll('.collapsible');
+            collapsibles.forEach(collapsible => {
+                collapsible.addEventListener('click', () => {
+                    collapsible.classList.toggle('active');
+                });
+            });
+        }
+
+        // Function to determine risk color
+        function getRiskClass(riskLevel) {
+            switch (riskLevel.toLowerCase()) {
+                case 'high':
+                    return 'risk-high';
+                case 'moderate':
+                    return 'risk-moderate';
+                case 'low':
+                    return 'risk-low';
+                default:
+                    return '';
+            }
+        }
+
+        // Helper function to check if monitoring protocols have content
+        function hasMonitoringContent(protocols) {
+            return protocols && (
+                protocols.anc_frequency ||
+                (protocols.fetal_monitoring && protocols.fetal_monitoring.length > 0) ||
+                (protocols.maternal_monitoring && protocols.maternal_monitoring.length > 0)
+            );
+        }
+
+        // Helper function to check if premature prevention protocols have content
+        function hasPreventionContent(protocols) {
+            return protocols && Object.keys(protocols).length > 0;
+        }
+
+        // Helper function to check if premature monitoring schedule has content
+        function hasPrematureMonitoringContent(schedule) {
+            return schedule && (
+                schedule.visit_frequency ||
+                schedule.fetal_monitoring ||
+                schedule.contraction_monitoring
+            );
+        }
+
+        // Learn More Button Logic
+        function setupLearnMoreButton() {
+            const learnMore = document.getElementById('learnMore');
+            learnMore.addEventListener('click', () => {
+                tabLinks.forEach(l => l.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                document.querySelector('.tab-link[data-tab="detailed-analysis"]').classList.add('active');
+                document.getElementById('detailed-analysis').classList.add('active');
+            });
+        }
+
+        // Form Submission Logic
+        document.getElementById('patientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultsDiv = document.getElementById('results');
+            const highRiskDiv = document.getElementById('highRiskRecommendations');
+            const highRiskActionsDiv = document.getElementById('highRiskActions');
+            const highRiskMedicationDiv = document.getElementById('highRiskMedication');
+            const highRiskMonitoringDiv = document.getElementById('highRiskMonitoring');
+            const highRiskRecommendationsSection = document.getElementById('highRiskRecommendationsSection');
+            const prematureDiv = document.getElementById('prematureRecommendations');
+            const prematureInterventionsDiv = document.getElementById('prematureInterventions');
+            const prematurePreventionDiv = document.getElementById('prematurePrevention');
+            const prematureMonitoringDiv = document.getElementById('prematureMonitoring');
+            const prematureRecommendationsSection = document.getElementById('prematureRecommendationsSection');
+            const learnMoreButton = document.getElementById('learnMore');
+
+            // Reset sections
+            resultsDiv.classList.add('hidden');
+            highRiskDiv.innerHTML = '';
+            highRiskActionsDiv.classList.add('hidden');
+            highRiskMedicationDiv.classList.add('hidden');
+            highRiskMonitoringDiv.classList.add('hidden');
+            highRiskRecommendationsSection.innerHTML = '';
+            prematureDiv.innerHTML = '';
+            prematureInterventionsDiv.classList.add('hidden');
+            prematurePreventionDiv.classList.add('hidden');
+            prematureMonitoringDiv.classList.add('hidden');
+            prematureRecommendationsSection.innerHTML = '';
+            learnMoreButton.classList.add('hidden');
+
+            const formData = new FormData(e.target);
+            const patientData = Object.fromEntries(formData);
+
+            try {
+                let showLearnMore = false;
+
+                // High Risk Prediction
+                const highRiskResponse = await fetch('/predict_high_risk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(patientData)
+                });
+                const highRiskResult = await highRiskResponse.json();
+                if (highRiskResult.status === 'success') {
+                    const rec = highRiskResult.recommendations;
+                    let highRiskHtml = `
+                        <ul>
+                            <li style="font-size: 25px;"> <strong class="${getRiskClass(rec.risk_assessment.risk_level)}">${rec.risk_assessment.risk_level.toUpperCase()}</strong></li>
+                        </ul>
+                    `;
+                    highRiskDiv.innerHTML = highRiskHtml;
+
+                    // Only display recommendations for non-Low risk levels
+                    if (rec.risk_assessment.risk_level.toLowerCase() !== 'low-risk') {
+                        if (rec.immediate_actions && rec.immediate_actions.length > 0) {
+                            highRiskActionsDiv.innerHTML = `
+                                <h3><span class="emoji">🚨</span>Immediate Actions</h3>
+                                <ul>
+                                    ${rec.immediate_actions.map(action => `<li>${action}</li>`).join('')}
+                                </ul>
+                            `;
+                            highRiskActionsDiv.classList.remove('hidden');
+                        }
+
+                        if (rec.medication_protocols && rec.medication_protocols.length > 0) {
+                            highRiskMedicationDiv.innerHTML = `
+                                <h3><span class="emoji">💊</span>Medication Protocols</h3>
+                                <ul>
+                                    ${rec.medication_protocols.map(protocol => `<li>${protocol}</li>`).join('')}
+                                </ul>
+                            `;
+                            highRiskMedicationDiv.classList.remove('hidden');
+                        }
+
+                        if (hasMonitoringContent(rec.monitoring_protocols)) {
+                            highRiskMonitoringDiv.innerHTML = `
+                                <h3><span class="emoji">📈</span>Monitoring Protocols</h3>
+                                <ul>
+                                    ${rec.monitoring_protocols.anc_frequency ? `<li>ANC Frequency: ${rec.monitoring_protocols.anc_frequency}</li>` : ''}
+                                    ${rec.monitoring_protocols.fetal_monitoring && rec.monitoring_protocols.fetal_monitoring.length > 0 ? `
+                                        <li>Fetal Monitoring:
+                                            <ul>
+                                                ${rec.monitoring_protocols.fetal_monitoring.map(item => `<li>${item}</li>`).join('')}
+                                            </ul>
+                                        </li>
+                                    ` : ''}
+                                    ${rec.monitoring_protocols.maternal_monitoring && rec.monitoring_protocols.maternal_monitoring.length > 0 ? `
+                                        <li>Maternal Monitoring:
+                                            <ul>
+                                                ${rec.monitoring_protocols.maternal_monitoring.map(item => `<li>${item}</li>`).join('')}
+                                            </ul>
+                                        </li>
+                                    ` : ''}
+                                </ul>
+                            `;
+                            highRiskMonitoringDiv.classList.remove('hidden');
+                        }
+
+                        // Recommendations for roles
+                        const recommendationsHtml = `
+                            <h3><span class="emoji">📋</span>Recommendations</h3>
+                            <div class="collapsible">ASHA Worker</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Schedule immediate follow-up visit within 48 hours</li>
+                                        <li>Educate patient on warning signs (e.g., bleeding, severe pain)</li>
+                                        <li>Ensure adherence to prescribed medications</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Implement SMS reminders for ANC visits</li>
+                                        <li>Coordinate with ANM for continuous monitoring</li>
+                                        <li>Provide nutritional counseling sessions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">ANM</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Conduct detailed clinical assessment</li>
+                                        <li>Monitor BP and hemoglobin levels</li>
+                                        <li>Refer to medical officer if abnormalities detected</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Schedule regular ultrasound checks</li>
+                                        <li>Track mental health scores (PHQ, GAD)</li>
+                                        <li>Update patient records in health system</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">Medical Officer</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Review high-risk classification</li>
+                                        <li>Prescribe necessary interventions</li>
+                                        <li>Video consultation medical officer</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Integrate with hospital systems for real-time updates</li>
+                                        <li>Monitor high-risk cases via dashboard</li>
+                                        <li>Plan for delivery at equipped facility</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">Obstetrician Referral</div>
+                            <div class="collapsible-content">
+                                <ul>
+                                    <li>Refer to obstetrician if high-risk classification confirmed</li>
+                                    <li>Coordinate for specialized care</li>
+                                    <li>Ensure follow-up appointments are scheduled</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3><span class="emoji">📞</span>Video consultation medical officer</h3>
+                                <p><strong>${['critical high-risk', 'very high-risk', 'high-risk'].includes(rec.risk_assessment.risk_level.toLowerCase()) ? 'YES' : 'NO'}</strong></p>
+                            </div>
+                        `;
+                        highRiskRecommendationsSection.innerHTML = recommendationsHtml;
+                        showLearnMore = true;
+                    }
+                } else {
+                    throw new Error(highRiskResult.message || 'Error generating high risk recommendations');
+                }
+
+                // Premature Prediction
+                // Premature Prediction
+                const prematureResponse = await fetch('/predict_premature', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(patientData)
+                });
+                const prematureResult = await prematureResponse.json();
+                if (prematureResult.status === 'success') {
+                    const rec = prematureResult.recommendations;
+                    let prematureHtml = `
+                        <ul>
+                            <li style="font-size: 25px;"> <strong class="${getRiskClass(rec.risk_assessment.risk_level)}">${rec.risk_assessment.risk_level.toUpperCase()}</strong></li>
+                        </ul>
+                    `;
+                    prematureDiv.innerHTML = prematureHtml;
+
+                    // Only display recommendations for High, Very High, or Critical risk levels
+                    if (!['moderate premature risk', 'low premature risk'].includes(rec.risk_assessment.risk_level.toLowerCase())) {
+                        if (rec.immediate_interventions && rec.immediate_interventions.length > 0) {
+                            prematureInterventionsDiv.innerHTML = `
+                                <h3><span class="emoji">🚨</span>Immediate Interventions</h3>
+                                <ul>
+                                    ${rec.immediate_interventions.map(intervention => `<li>${intervention}</li>`).join('')}
+                                </ul>
+                            `;
+                            prematureInterventionsDiv.classList.remove('hidden');
+                        }
+
+                        if (hasPreventionContent(rec.premature_prevention_protocols)) {
+                            prematurePreventionDiv.innerHTML = `
+                                <h3><span class="emoji">🛡️</span>Premature Prevention Protocols</h3>
+                                <ul>
+                                    ${Object.entries(rec.premature_prevention_protocols).map(([protocol, actions]) => `
+                                        <li>${protocol.replace('_', ' ').toUpperCase()}:
+                                            <ul>
+                                                ${actions.map(action => `<li>${action}</li>`).join('')}
+                                            </ul>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            `;
+                            prematurePreventionDiv.classList.remove('hidden');
+                        }
+
+                        if (hasPrematureMonitoringContent(rec.monitoring_schedule)) {
+                            prematureMonitoringDiv.innerHTML = `
+                                <h3><span class="emoji">📅</span>Monitoring Schedule</h3>
+                                <ul>
+                                    ${rec.monitoring_schedule.visit_frequency ? `<li>Visit Frequency: ${rec.monitoring_schedule.visit_frequency}</li>` : ''}
+                                    ${rec.monitoring_schedule.fetal_monitoring ? `<li>Fetal Monitoring: ${rec.monitoring_schedule.fetal_monitoring}</li>` : ''}
+                                    ${rec.monitoring_schedule.contraction_monitoring ? `<li>Contraction Monitoring: ${rec.monitoring_schedule.contraction_monitoring}</li>` : ''}
+                                </ul>
+                            `;
+                            prematureMonitoringDiv.classList.remove('hidden');
+                        }
+
+                        // Recommendations for roles
+                        const prematureRecommendationsHtml = `
+                            <h3><span class="emoji">📋</span>Recommendations</h3>
+                            <div class="collapsible">ASHA Worker</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Monitor for signs of preterm labor</li>
+                                        <li>Educate on reducing physical stress</li>
+                                        <li>Ensure patient attends ANC visits</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Send reminders for medication adherence</li>
+                                        <li>Coordinate with ANM for regular check-ups</li>
+                                        <li>Provide lifestyle modification guidance</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">ANM</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Assess for preterm labor risk factors</li>
+                                        <li>Monitor cervical length via ultrasound</li>
+                                        <li>Refer to medical officer if high risk</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Track fetal growth patterns</li>
+                                        <li>Update preterm risk in health records</li>
+                                        <li>Schedule additional ANC visits</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">Medical Officer</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Evaluate for tocolytic therapy</li>
+                                        <li>Consider corticosteroid administration</li>
+                                        <li>Video consultation medical officer</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Monitor via integrated health system</li>
+                                        <li>Plan for NICU availability</li>
+                                        <li>Regularly update risk assessment</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">Obstetrician Referral</div>
+                            <div class="collapsible-content">
+                                <ul>
+                                    <li>Refer if premature risk classification is YES</li>
+                                    <li>Coordinate for preterm labor management</li>
+                                    <li>Ensure hospital delivery planning</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3><span class="emoji">📞</span>Video consultation medical officer</h3>
+                                <p><strong>${['critical premature risk', 'very high premature risk', 'high premature risk'].includes(rec.risk_assessment.risk_level.toLowerCase()) ? 'YES' : 'NO'}</strong></p>
+                            </div>
+                        `;
+                        prematureRecommendationsSection.innerHTML = prematureRecommendationsHtml;
+                        showLearnMore = true;
+                    }
+                } else {
+                    throw new Error(prematureResult.message || 'Error generating Premature recommendations');
+                }
+
+                if (showLearnMore) {
+                    learnMoreButton.classList.remove('hidden');
+                }
+
+                resultsDiv.classList.remove('hidden');
+                setupCollapsible();
+                setupLearnMoreButton();
+                window.scrollTo({ top: resultsDiv.offsetTop, behavior: 'smooth' });
+            } catch (error) {
+                alert(`Error generating recommendations: ${error.message}`);
+                console.error(error);
+            }
+        });
+
+        // Profile Submission Logic
+        document.getElementById('submitProfile').addEventListener('click', async () => {
+            const profileId = document.getElementById('patientProfile').value;
+            const patientData = patientProfiles[profileId];
+            const resultsDiv = document.getElementById('results');
+            const highRiskDiv = document.getElementById('highRiskRecommendations');
+            const highRiskActionsDiv = document.getElementById('highRiskActions');
+            const highRiskMedicationDiv = document.getElementById('highRiskMedication');
+            const highRiskMonitoringDiv = document.getElementById('highRiskMonitoring');
+            const highRiskRecommendationsSection = document.getElementById('highRiskRecommendationsSection');
+            const prematureDiv = document.getElementById('prematureRecommendations');
+            const prematureInterventionsDiv = document.getElementById('prematureInterventions');
+            const prematurePreventionDiv = document.getElementById('prematurePrevention');
+            const prematureMonitoringDiv = document.getElementById('prematureMonitoring');
+            const prematureRecommendationsSection = document.getElementById('prematureRecommendationsSection');
+            const learnMoreButton = document.getElementById('learnMore');
+
+            // Reset sections
+            resultsDiv.classList.add('hidden');
+            highRiskDiv.innerHTML = '';
+            highRiskActionsDiv.classList.add('hidden');
+            highRiskMedicationDiv.classList.add('hidden');
+            highRiskMonitoringDiv.classList.add('hidden');
+            highRiskRecommendationsSection.innerHTML = '';
+            prematureDiv.innerHTML = '';
+            prematureInterventionsDiv.classList.add('hidden');
+            prematurePreventionDiv.classList.add('hidden');
+            prematureMonitoringDiv.classList.add('hidden');
+            prematureRecommendationsSection.innerHTML = '';
+            learnMoreButton.classList.add('hidden');
+
+            try {
+                let showLearnMore = false;
+
+                // High Risk Prediction
+                const highRiskResponse = await fetch('/predict_high_risk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(patientData)
+                });
+                const highRiskResult = await highRiskResponse.json();
+                if (highRiskResult.status === 'success') {
+                    const rec = highRiskResult.recommendations;
+                    let highRiskHtml = `
+                        <ul>
+                            <li style="font-size: 25px;"> <strong class="${getRiskClass(rec.risk_assessment.risk_level)}">${rec.risk_assessment.risk_level.toUpperCase()}</strong></li>
+                        </ul>
+                    `;
+                    highRiskDiv.innerHTML = highRiskHtml;
+
+                    // Only display recommendations for non-Low risk levels
+                    if (rec.risk_assessment.risk_level.toLowerCase() !== 'low-risk') {
+                        if (rec.immediate_actions && rec.immediate_actions.length > 0) {
+                            highRiskActionsDiv.innerHTML = `
+                                <h3><span class="emoji">🚨</span>Immediate Actions</h3>
+                                <ul>
+                                    ${rec.immediate_actions.map(action => `<li>${action}</li>`).join('')}
+                                </ul>
+                            `;
+                            highRiskActionsDiv.classList.remove('hidden');
+                        }
+
+                        if (rec.medication_protocols && rec.medication_protocols.length > 0) {
+                            highRiskMedicationDiv.innerHTML = `
+                                <h3><span class="emoji">💊</span>Medication Protocols</h3>
+                                <ul>
+                                    ${rec.medication_protocols.map(protocol => `<li>${protocol}</li>`).join('')}
+                                </ul>
+                            `;
+                            highRiskMedicationDiv.classList.remove('hidden');
+                        }
+
+                        if (hasMonitoringContent(rec.monitoring_protocols)) {
+                            highRiskMonitoringDiv.innerHTML = `
+                                <h3><span class="emoji">📈</span>Monitoring Protocols</h3>
+                                <ul>
+                                    ${rec.monitoring_protocols.anc_frequency ? `<li>ANC Frequency: ${rec.monitoring_protocols.anc_frequency}</li>` : ''}
+                                    ${rec.monitoring_protocols.fetal_monitoring && rec.monitoring_protocols.fetal_monitoring.length > 0 ? `
+                                        <li>Fetal Monitoring:
+                                            <ul>
+                                                ${rec.monitoring_protocols.fetal_monitoring.map(item => `<li>${item}</li>`).join('')}
+                                            </ul>
+                                        </li>
+                                    ` : ''}
+                                    ${rec.monitoring_protocols.maternal_monitoring && rec.monitoring_protocols.maternal_monitoring.length > 0 ? `
+                                        <li>Maternal Monitoring:
+                                            <ul>
+                                                ${rec.monitoring_protocols.maternal_monitoring.map(item => `<li>${item}</li>`).join('')}
+                                            </ul>
+                                        </li>
+                                    ` : ''}
+                                </ul>
+                            `;
+                            highRiskMonitoringDiv.classList.remove('hidden');
+                        }
+
+                        // Recommendations for roles
+                        const recommendationsHtml = `
+                            <h3><span class="emoji">📋</span>Recommendations</h3>
+                            <div class="collapsible">ASHA Worker</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Schedule immediate follow-up visit within 48 hours</li>
+                                        <li>Educate patient on warning signs (e.g., bleeding, severe pain)</li>
+                                        <li>Ensure adherence to prescribed medications</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Implement SMS reminders for ANC visits</li>
+                                        <li>Coordinate with ANM for continuous monitoring</li>
+                                        <li>Provide nutritional counseling sessions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">ANM</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Conduct detailed clinical assessment</li>
+                                        <li>Monitor BP and hemoglobin levels</li>
+                                        <li>Refer to medical officer if abnormalities detected</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Schedule regular ultrasound checks</li>
+                                        <li>Track mental health scores (PHQ, GAD)</li>
+                                        <li>Update patient records in health system</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">Medical Officer</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Review high-risk classification</li>
+                                        <li>Prescribe necessary interventions</li>
+                                        <li>Video consultation medical officer</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Integrate with hospital systems for real-time updates</li>
+                                        <li>Monitor high-risk cases via dashboard</li>
+                                        <li>Plan for delivery at equipped facility</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">Obstetrician Referral</div>
+                            <div class="collapsible-content">
+                                <ul>
+                                    <li>Refer to obstetrician if high-risk classification confirmed</li>
+                                    <li>Coordinate for specialized care</li>
+                                    <li>Ensure follow-up appointments are scheduled</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3><span class="emoji">📞</span>Video consultation medical officer</h3>
+                                <p><strong>${['critical high-risk', 'very high-risk', 'high-risk'].includes(rec.risk_assessment.risk_level.toLowerCase()) ? 'YES' : 'NO'}</strong></p>
+                            </div>
+                        `;
+                        highRiskRecommendationsSection.innerHTML = recommendationsHtml;
+                        showLearnMore = true;
+                    }
+                } else {
+                    throw new Error(highRiskResult.message || 'Error generating high risk recommendations');
+                }
+
+
+                // Premature Prediction
+// Premature Prediction
+                const prematureResponse = await fetch('/predict_premature', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(patientData)
+                });
+                const prematureResult = await prematureResponse.json();
+                if (prematureResult.status === 'success') {
+                    const rec = prematureResult.recommendations;
+                    let prematureHtml = `
+                        <ul>
+                            <li style="font-size: 25px;"> <strong class="${getRiskClass(rec.risk_assessment.risk_level)}">${rec.risk_assessment.risk_level.toUpperCase()}</strong></li>
+                        </ul>
+                    `;
+                    prematureDiv.innerHTML = prematureHtml;
+
+                    // Only display recommendations for High, Very High, or Critical risk levels
+                    if (!['moderate premature risk', 'low premature risk'].includes(rec.risk_assessment.risk_level.toLowerCase())) {
+                        if (rec.immediate_interventions && rec.immediate_interventions.length > 0) {
+                            prematureInterventionsDiv.innerHTML = `
+                                <h3><span class="emoji">🚨</span>Immediate Interventions</h3>
+                                <ul>
+                                    ${rec.immediate_interventions.map(intervention => `<li>${intervention}</li>`).join('')}
+                                </ul>
+                            `;
+                            prematureInterventionsDiv.classList.remove('hidden');
+                        }
+
+                        if (hasPreventionContent(rec.premature_prevention_protocols)) {
+                            prematurePreventionDiv.innerHTML = `
+                                <h3><span class="emoji">🛡️</span>Premature Prevention Protocols</h3>
+                                <ul>
+                                    ${Object.entries(rec.premature_prevention_protocols).map(([protocol, actions]) => `
+                                        <li>${protocol.replace('_', ' ').toUpperCase()}:
+                                            <ul>
+                                                ${actions.map(action => `<li>${action}</li>`).join('')}
+                                            </ul>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            `;
+                            prematurePreventionDiv.classList.remove('hidden');
+                        }
+
+                        if (hasPrematureMonitoringContent(rec.monitoring_schedule)) {
+                            prematureMonitoringDiv.innerHTML = `
+                                <h3><span class="emoji">📅</span>Monitoring Schedule</h3>
+                                <ul>
+                                    ${rec.monitoring_schedule.visit_frequency ? `<li>Visit Frequency: ${rec.monitoring_schedule.visit_frequency}</li>` : ''}
+                                    ${rec.monitoring_schedule.fetal_monitoring ? `<li>Fetal Monitoring: ${rec.monitoring_schedule.fetal_monitoring}</li>` : ''}
+                                    ${rec.monitoring_schedule.contraction_monitoring ? `<li>Contraction Monitoring: ${rec.monitoring_schedule.contraction_monitoring}</li>` : ''}
+                                </ul>
+                            `;
+                            prematureMonitoringDiv.classList.remove('hidden');
+                        }
+
+                        // Recommendations for roles
+                        const prematureRecommendationsHtml = `
+                            <h3><span class="emoji">📋</span>Recommendations</h3>
+                            <div class="collapsible">ASHA Worker</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Monitor for signs of preterm labor</li>
+                                        <li>Educate on reducing physical stress</li>
+                                        <li>Ensure patient attends ANC visits</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Send reminders for medication adherence</li>
+                                        <li>Coordinate with ANM for regular check-ups</li>
+                                        <li>Provide lifestyle modification guidance</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">ANM</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Assess for preterm labor risk factors</li>
+                                        <li>Monitor cervical length via ultrasound</li>
+                                        <li>Refer to medical officer if high risk</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Track fetal growth patterns</li>
+                                        <li>Update preterm risk in health records</li>
+                                        <li>Schedule additional ANC visits</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">Medical Officer</div>
+                            <div class="collapsible-content">
+                                <div class="collapsible">Short-Term</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Evaluate for tocolytic therapy</li>
+                                        <li>Consider corticosteroid administration</li>
+                                        <li>Video consultation medical officer</li>
+                                    </ul>
+                                </div>
+                                <div class="collapsible">Long-Term (via Systematic Notifications)</div>
+                                <div class="collapsible-content">
+                                    <ul>
+                                        <li>Monitor via integrated health system</li>
+                                        <li>Plan for NICU availability</li>
+                                        <li>Regularly update risk assessment</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="collapsible">Obstetrician Referral</div>
+                            <div class="collapsible-content">
+                                <ul>
+                                    <li>Refer if premature risk classification is YES</li>
+                                    <li>Coordinate for preterm labor management</li>
+                                    <li>Ensure hospital delivery planning</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3><span class="emoji">📞</span>Video consultation medical officer</h3>
+                                <p><strong>${['critical premature risk', 'very high premature risk', 'high premature risk'].includes(rec.risk_assessment.risk_level.toLowerCase()) ? 'YES' : 'NO'}</strong></p>
+                            </div>
+                        `;
+                        prematureRecommendationsSection.innerHTML = prematureRecommendationsHtml;
+                        showLearnMore = true;
+                    }
+                } else {
+                    throw new Error(prematureResult.message || 'Error generating Premature recommendations');
+                }
+
+                if (showLearnMore) {
+                    learnMoreButton.classList.remove('hidden');
+                }
+
+                resultsDiv.classList.remove('hidden');
+                setupCollapsible();
+                setupLearnMoreButton();
+                window.scrollTo({ top: resultsDiv.offsetTop, behavior: 'smooth' });
+            } catch (error) {
+                alert(`Error generating recommendations: ${error.message}`);
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
